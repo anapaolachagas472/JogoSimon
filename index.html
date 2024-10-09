@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo Simon</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 150px);
+            grid-gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .game-button {
+            width: 150px;
+            height: 150px;
+            border-radius: 10px;
+            border: none;
+            transition: transform 0.2s, opacity 0.2s;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .game-button:active {
+            transform: scale(1.1);
+        }
+
+        #red {
+            background-color: #ff4d4d;
+        }
+
+        #blue {
+            background-color: #4da6ff;
+        }
+
+        #green {
+            background-color: #4dff88;
+        }
+
+        #yellow {
+            background-color: #ffff4d;
+        }
+
+        #controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            background-color: #333;
+            color: #fff;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        h2 {
+            color: #555;
+            margin-top: 20px;
+        }
+
+        .active {
+            opacity: 0.7; /* Reduz a opacidade ao piscar */
+        }
+    </style>
+</head>
+<body>
+    <h1>Jogo Simon</h1>
+
+    <div class="container">
+        <button id="red" class="game-button"></button>
+        <button id="blue" class="game-button"></button>
+        <button id="green" class="game-button"></button>
+        <button id="yellow" class="game-button"></button>
+    </div>
+
+    <div id="controls">
+        <button id="startButton">Iniciar Jogo</button>
+        <button id="easyMode">Modo Fácil</button>
+    </div>
+
+    <h2 id="score">Pontuação: 0</h2>
+
+    <script>
+        let gameSequence = [];
+        let playerSequence = [];
+        let score = 0;
+        let gameSpeed = 600; // Tempo padrão
+        const colors = ['red', 'blue', 'green', 'yellow'];
+
+        document.getElementById('startButton').addEventListener('click', startGame);
+        document.getElementById('easyMode').addEventListener('click', setEasyMode);
+
+        function startGame() {
+            gameSequence = [];
+            playerSequence = [];
+            score = 0;
+            document.getElementById('score').textContent = `Pontuação: ${score}`;
+            nextRound();
+        }
+
+        function setEasyMode() {
+            gameSpeed = 1000; // Aumenta o tempo para tornar o jogo mais lento
+            startGame();
+        }
+
+        function nextRound() {
+            playerSequence = [];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            gameSequence.push(randomColor);
+            playSequence();
+        }
+
+        function playSequence() {
+            gameSequence.forEach((color, index) => {
+                setTimeout(() => {
+                    flashColor(color);
+                }, (index + 1) * gameSpeed); // Usa a velocidade definida pelo modo
+            });
+        }
+
+        function flashColor(color) {
+            const button = document.getElementById(color);
+            button.classList.add('active');
+            setTimeout(() => {
+                button.classList.remove('active');
+            }, gameSpeed / 2);
+        }
+
+        document.querySelectorAll('.game-button').forEach(button => {
+            button.addEventListener('click', handlePlayerInput);
+        });
+
+        function handlePlayerInput(event) {
+            const clickedColor = event.target.id;
+            playerSequence.push(clickedColor);
+            flashColor(clickedColor);
+            checkPlayerInput();
+        }
+
+        function checkPlayerInput() {
+            const currentMove = playerSequence.length - 1;
+            if (playerSequence[currentMove] !== gameSequence[currentMove]) {
+                alert('Você errou! Fim de Jogo');
+                document.getElementById('score').textContent = `Pontuação: 0`;
+                return;
+            }
+
+            if (playerSequence.length === gameSequence.length) {
+                score++;
+                document.getElementById('score').textContent = `Pontuação: ${score}`;
+                setTimeout(nextRound, 1000);
+            }
+        }
+    </script>
+</body>
+</html>
